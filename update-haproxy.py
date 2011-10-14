@@ -23,28 +23,35 @@ def main():
                         help='The pid file for haproxy. Defaults to /var/run/haproxy.pid.')
     args = parser.parse_args()
 
-    # Create a connection to EC2.
-    logging.debug('Connecting to EC2.')
-    conn = EC2Connection(aws_access_key_id=args.access_key,
-                               aws_secret_access_key=args.secret_key)
-
-    # Get the security group.
-    logging.debug('Fetching security group (%s).' % args.security_group)
-    sg = SecurityGroup(connection=conn, name=args.security_group)
-
-    # Fetch a list of all the instances in this security group.
-    logging.debug('Getting instance.')
-    instances = [i for i in sg.instances() if i.state == 'running']
-
-    # Load in the existing config file contents.
-    logging.debug('Locading existing configuration.')
-    f = open(args.output, 'r')
-    old_configuration = f.read()
-    f.close()
-
-    # Generate the new config from the template.
-    logging.debug('Generating configuration for haproxy.')
-    new_configuration = Template(filename=args.template).render(instances=instances)
+    # Wrap everytihg in a try block. Any exceptions and exit without changing
+    # anything just to be safe.
+    new_configuration = None
+    try:
+        # Create a connection to EC2.
+        logging.debug('Connecting to EC2.')
+        conn = EC2Connection(aws_access_key_id=args.access_key,
+                             aws_secret_access_key=args.secret_key)
+    
+        # Get the security group.
+        logging.debug('Fetching security group (%s).' % args.security_group)
+        sg = SecurityGroup(connection=conn, name=args.security_group)
+    
+        # Fetch a list of all the instances in this security group.
+        logging.debug('Getting instance.')
+        instances = [i for i in sg.instances() if i.state == 'running']
+    
+        # Load in the existing config file contents.
+        logging.debug('Locading existing configuration.')
+        f = open(args.output, 'r')
+        old_configuration = f.read()
+        f.close()
+    
+        # Generate the new config from the template.
+        logging.debug('Generating configuration for haproxy.')
+        new_configuration = Template(filename=args.template).render(instances=instances)
+    except:
+        logging.error('Something went wrong! Exiting without making changes.')
+        return False
 
     # See if this new config is different. If it is then restart using it.
     # Otherwise just delete the temporary file and do nothing.
