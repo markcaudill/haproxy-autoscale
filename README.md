@@ -1,4 +1,4 @@
-# haproxy-update #
+# haproxy-autoscale #
 
 ## Description ##
 I had a project I was working on where I needed a private load balancer to use
@@ -10,12 +10,18 @@ instances under it were auto-scaling and there was no built-in mechanism for
 the load balancer to know to send traffic to new instances and to stop sending
 traffic to deleted instances.
 
-Enter haproxy-update. This is a wrapper of sorts that will automatically add
+Enter haproxy-autoscale. This is a wrapper of sorts that will automatically add
 all instances in a security group that are currently in a running state to the
 haproxy configuration. It then restarts haproxy in a manner which gracefully
 terminates connections so there is no downtime. Also, haproxy will only be
 restarted if there are changes. If there are no changes in the isntances that
 should be sent traffic then it just exits.
+
+I've actually bundled the haproxy binary with this repo to make things easier.
+
+## Installation ##
+Run `sudo python setup.py install` and if everything goes well you're ready to
+configure (if you have complex needs) and run the update-haproxy.py command.
 
 ## Configuration ##
 Most of the configuration is done via command line options. The only
@@ -25,7 +31,7 @@ command line. Make sure to read the existing template to see what variables
 will be available to use.
 
 ## Usage ##
-haproxy-update was designed to be run from the load balancer itself as a cron
+haproxy-autoscale was designed to be run from the load balancer itself as a cron
 job. Ideally it would be run every minute.
 
     update-haproxy.py [-h] --security-group SECURITY_GROUP --access-key
@@ -42,3 +48,7 @@ job. Ideally it would be run every minute.
       --haproxy HAPROXY     The haproxy binary to call. Defaults to haproxy.
       --pid PID             The pid file for haproxy. Defaults to
                             /var/run/haproxy.pid.
+
+Example:
+
+    /usr/bin/python update-haproxy.py --access-key='SOMETHING' --secret-key='SoMeThInGeLsE' --security-group='webheads'
