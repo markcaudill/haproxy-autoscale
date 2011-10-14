@@ -3,7 +3,8 @@
 ## Description ##
 I had a project I was working on where I needed a private load balancer to use
 on Amazon Web Services. Unfortunately, AWS Elastic Load Balancers do not
-support private listeners so I needed to make my own load balancer.
+support private listeners so I needed to make my own load balancer using
+Linux.
 
 Making a load balancer is pretty straight forward. The challenge was that the
 instances under it were auto-scaling and there was no built-in mechanism for
@@ -17,7 +18,14 @@ terminates connections so there is no downtime. Also, haproxy will only be
 restarted if there are changes. If there are no changes in the isntances that
 should be sent traffic then it just exits.
 
-I've actually bundled the haproxy binary with this repo to make things easier.
+I've actually bundled the haproxy binary with this repo to make things easier
+when getting started.
+
+The update-haproxy.py script does a good job with basic setups using the
+default options but as things get more complex you may want to get more
+specific with the paramters. For instance, if you decide to run multiple
+instances at the same time then you should probably specifify different
+templates, outputs and pid files for each.
 
 ## Installation ##
 Run `sudo python setup.py install` and if everything goes well you're ready to
@@ -52,3 +60,4 @@ job. Ideally it would be run every minute.
 Example:
 
     /usr/bin/python update-haproxy.py --access-key='SOMETHING' --secret-key='SoMeThInGeLsE' --security-group='webheads'
+
