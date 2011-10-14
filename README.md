@@ -25,6 +25,8 @@ command line. Make sure to read the existing template to see what variables
 will be available to use.
 
 ## Usage ##
+haproxy-update was designed to be run from the load balancer itself as a cron
+job. Ideally it would be run every minute.
 
     update-haproxy.py [-h] --security-group SECURITY_GROUP --access-key
                       ACCESS_KEY --secret-key SECRET_KEY [--output OUTPUT]
