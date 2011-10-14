@@ -3,7 +3,6 @@ from boto.ec2.securitygroup import SecurityGroup
 from boto.ec2.instance import Instance
 from mako.template import Template
 import argparse
-import filecmp
 import os
 import subprocess
 import logging
