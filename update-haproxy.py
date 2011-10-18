@@ -1,3 +1,4 @@
+import boto.ec2.connection
 from boto.ec2.connection import EC2Connection
 from boto.ec2.securitygroup import SecurityGroup
 from boto.ec2.instance import Instance
@@ -6,6 +7,8 @@ import argparse
 import os
 import subprocess
 import logging
+from haproxy_autoscale import get_running_instances, file_contents, generate_haproxy_config, steal_elastic_ip
+import urllib2
 
 
 def main():
@@ -21,69 +24,62 @@ def main():
                         help='The haproxy binary to call. Defaults to haproxy if not specified.')
     parser.add_argument('--pid', default='/var/run/haproxy.pid',
                         help='The pid file for haproxy. Defaults to /var/run/haproxy.pid.')
+    parser.add_argument('--eip',
+                        help='The Elastic IP to bind to when VIP seems unhealthy.')
+    parser.add_argument('--health-check-url',
+                        help='The URL to check. Assigns EIP to self if health check fails.')
     args = parser.parse_args()
 
-    # Wrap everytihg in a try block. Any exceptions and exit without changing
-    # anything just to be safe.
-    new_configuration = None
-    try:
-        # Create a connection to EC2.
-        logging.debug('Connecting to EC2.')
-        conn = EC2Connection(aws_access_key_id=args.access_key,
-                             aws_secret_access_key=args.secret_key)
+    # Fetch a list of all the instances in this security group.
+    logging.debug('Getting instance.')
+    instances = get_running_instances(access_key=args.access_key,
+                                      secret_key=args.secret_key,
+                                      security_group=args.security_group)
     
-        # Get the security group.
-        logging.debug('Fetching security group (%s).' % args.security_group)
-        sg = SecurityGroup(connection=conn, name=args.security_group)
-    
-        # Fetch a list of all the instances in this security group.
-        logging.debug('Getting instance.')
-        instances = [i for i in sg.instances() if i.state == 'running']
-    
-        # Load in the existing config file contents.
-        logging.debug('Locading existing configuration.')
-        f = open(args.output, 'r')
-        old_configuration = f.read()
-        f.close()
-    
-        # Generate the new config from the template.
-        logging.debug('Generating configuration for haproxy.')
-        new_configuration = Template(filename=args.template).render(instances=instances)
-    except:
-        logging.error('Something went wrong! Exiting without making changes.')
-        return False
-
+    # Generate the new config from the template.
+    logging.debug('Generating configuration for haproxy.')
+    new_configuration = generate_haproxy_config(template=args.template,
+                                                instances=instances)
     # See if this new config is different. If it is then restart using it.
     # Otherwise just delete the temporary file and do nothing.
     logging.debug('Comparing to existing configuration.')
-    if old_configuration != new_configuration:
-        logging.debug('Existing configuration is outdated.')
+    logging.debug('Existing configuration is outdated.')
 
-        # Overwite the real config file.
-        logging.debug('Writing new configuration.')
-        output = open(args.output, 'w')
-        output.write(Template(filename=args.template).render(instances=instances))
-        output.close()
+    # Overwite the real config file.
+    logging.debug('Writing new configuration.')
+    file_contents(filename=args.output,
+                  content=generate_haproxy_config(template=args.template,
+                                                  instances=instances    ))
 
-        # Get PID if haproxy is already running.
-        logging.debug('Fetching PID from %s.' % args.pid)
-        pid = ''
-        try:
-            pidfile = open(args.pid, 'r')
-            pid = pidfile.read()
-            pidfile.close()
-        except:
-            logging.warn('Unable to read from %s. haproxy may not be running already.')
+    # Get PID if haproxy is already running.
+    logging.debug('Fetching PID from %s.' % args.pid)
+    pid = file_contents(filename=args.pid)
 
-        # Restart haproxy.
-        logging.debug('Restarting haproxy.')
-        command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid)
-        logging.debug('Executing: %s' % command)
-        subprocess.call(command, shell=True)
-    else:
-        logging.debug('Existing configuration is up-to-date.')
+    # Restart haproxy.
+    logging.debug('Restarting haproxy.')
+    command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
+    logging.debug('Executing: %s' % command)
+    subprocess.call(command, shell=True)
+
+    # Do a health check on the url if specified.
+    try:
+        if args.health_check_url and args.eip:
+            logging.info('Performing health check.')
+            try:
+                logging.debug('Checking %s' % args.health_check_url)
+                response = urllib2.urlopen(args.health_check_url)
+                logging.debug('Response: %s' % response.read())
+            except:
+                # Assign the EIP to self.
+                logging.warn('Health check failed. Assigning %s to self.' % args.eip)
+                steal_elastic_ip(access_key=args.access_key,
+                                 secret_key=args.secret_key,
+                                 ip=args.eip                )
+    except:
+        pass
+
 
 
 if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.ERROR)
+    logging.getLogger().setLevel(logging.DEBUG)
     main()

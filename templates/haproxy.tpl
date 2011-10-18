@@ -8,7 +8,7 @@ defaults
     timeout client 5000ms
     timeout server 5000ms
 
-frontend www *:8080
+frontend www *:80
     mode http
     maxconn 50000
     default_backend servers
