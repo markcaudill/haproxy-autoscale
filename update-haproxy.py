@@ -14,7 +14,7 @@ import urllib2
 def main():
     # Parse up the command line arguments.
     parser = argparse.ArgumentParser(description='Update haproxy to use all instances running in a security group.')
-    parser.add_argument('--security-group', required=True)
+    parser.add_argument('--security-group', required=True, nargs='+', type=str)
     parser.add_argument('--access-key', required=True)
     parser.add_argument('--secret-key', required=True)
     parser.add_argument('--output', default='haproxy.cfg',
@@ -30,45 +30,46 @@ def main():
                         help='The URL to check. Assigns EIP to self if health check fails.')
     args = parser.parse_args()
 
-    # Fetch a list of all the instances in this security group.
-    logging.debug('Getting instance.')
-    instances = get_running_instances(access_key=args.access_key,
-                                      secret_key=args.secret_key,
-                                      security_group=args.security_group)
-    
+    # Fetch a list of all the instances in these security groups.
+    instances = {}
+    for security_group in args.security_group:
+        logging.info('Getting instances for %s.' % security_group)
+        instances[security_group] = get_running_instances(access_key=args.access_key,
+                                                          secret_key=args.secret_key,
+                                                          security_group=security_group)
     # Generate the new config from the template.
-    logging.debug('Generating configuration for haproxy.')
+    logging.info('Generating configuration for haproxy.')
     new_configuration = generate_haproxy_config(template=args.template,
                                                 instances=instances)
     # See if this new config is different. If it is then restart using it.
     # Otherwise just delete the temporary file and do nothing.
-    logging.debug('Comparing to existing configuration.')
-    logging.debug('Existing configuration is outdated.')
+    logging.info('Comparing to existing configuration.')
+    logging.info('Existing configuration is outdated.')
 
     # Overwite the real config file.
-    logging.debug('Writing new configuration.')
+    logging.info('Writing new configuration.')
     file_contents(filename=args.output,
                   content=generate_haproxy_config(template=args.template,
                                                   instances=instances    ))
 
     # Get PID if haproxy is already running.
-    logging.debug('Fetching PID from %s.' % args.pid)
+    logging.info('Fetching PID from %s.' % args.pid)
     pid = file_contents(filename=args.pid)
 
     # Restart haproxy.
-    logging.debug('Restarting haproxy.')
-    command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
-    logging.debug('Executing: %s' % command)
-    subprocess.call(command, shell=True)
+#   logging.info('Restarting haproxy.')
+#   command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
+#   logging.info('Executing: %s' % command)
+#   subprocess.call(command, shell=True)
 
     # Do a health check on the url if specified.
     try:
         if args.health_check_url and args.eip:
             logging.info('Performing health check.')
             try:
-                logging.debug('Checking %s' % args.health_check_url)
+                logging.info('Checking %s' % args.health_check_url)
                 response = urllib2.urlopen(args.health_check_url)
-                logging.debug('Response: %s' % response.read())
+                logging.info('Response: %s' % response.read())
             except:
                 # Assign the EIP to self.
                 logging.warn('Health check failed. Assigning %s to self.' % args.eip)
@@ -81,5 +82,5 @@ def main():
 
 
 if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
     main()

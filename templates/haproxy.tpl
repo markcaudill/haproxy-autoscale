@@ -16,6 +16,18 @@ frontend www *:80
 backend servers
     mode http
     balance roundrobin
-    % for instance in instances:
+    % for instance in instances['security-group-1']:
+    server ${ instance.id } ${ instance.private_dns_name }
+    % endfor
+
+frontend java *:8080,*:8443
+    mode http
+    maxconn 50000
+    default_backend java_servers
+
+backend java_servers
+    mode http
+    balance roundrobin
+    % for instance in instances['security-group-2']:
     server ${ instance.id } ${ instance.private_dns_name }
     % endfor
