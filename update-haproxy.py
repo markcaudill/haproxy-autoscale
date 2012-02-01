@@ -57,10 +57,10 @@ def main():
     pid = file_contents(filename=args.pid)
 
     # Restart haproxy.
-#   logging.info('Restarting haproxy.')
-#   command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
-#   logging.info('Executing: %s' % command)
-#   subprocess.call(command, shell=True)
+    logging.info('Restarting haproxy.')
+    command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
+    logging.info('Executing: %s' % command)
+    subprocess.call(command, shell=True)
 
     # Do a health check on the url if specified.
     try:
