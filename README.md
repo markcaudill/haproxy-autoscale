@@ -42,29 +42,29 @@ will be available to use.
 haproxy-autoscale was designed to be run from the load balancer itself as a cron
 job. Ideally it would be run every minute.
 
-update-haproxy.py [-h] --security-group SECURITY_GROUP
-                  [SECURITY_GROUP ...] --access-key ACCESS_KEY
-                  --secret-key SECRET_KEY [--output OUTPUT]
-                  [--template TEMPLATE] [--haproxy HAPROXY] [--pid PID]
-                  [--eip EIP] [--health-check-url HEALTH_CHECK_URL]
+    update-haproxy.py [-h] --security-group SECURITY_GROUP
+                      [SECURITY_GROUP ...] --access-key ACCESS_KEY
+                      --secret-key SECRET_KEY [--output OUTPUT]
+                      [--template TEMPLATE] [--haproxy HAPROXY] [--pid PID]
+                      [--eip EIP] [--health-check-url HEALTH_CHECK_URL]
 
-Update haproxy to use all instances running in a security group.
+    Update haproxy to use all instances running in a security group.
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --security-group SECURITY_GROUP [SECURITY_GROUP ...]
-  --access-key ACCESS_KEY
-  --secret-key SECRET_KEY
-  --output OUTPUT       Defaults to haproxy.cfg if not specified.
-  --template TEMPLATE
-  --haproxy HAPROXY     The haproxy binary to call. Defaults to haproxy if not
-                        specified.
-  --pid PID             The pid file for haproxy. Defaults to
-                        /var/run/haproxy.pid.
-  --eip EIP             The Elastic IP to bind to when VIP seems unhealthy.
-  --health-check-url HEALTH_CHECK_URL
-                        The URL to check. Assigns EIP to self if health check
-                        fails.
+    optional arguments:
+      -h, --help            show this help message and exit
+      --security-group SECURITY_GROUP [SECURITY_GROUP ...]
+      --access-key ACCESS_KEY
+      --secret-key SECRET_KEY
+      --output OUTPUT       Defaults to haproxy.cfg if not specified.
+      --template TEMPLATE
+      --haproxy HAPROXY     The haproxy binary to call. Defaults to haproxy if not
+                            specified.
+      --pid PID             The pid file for haproxy. Defaults to
+                            /var/run/haproxy.pid.
+      --eip EIP             The Elastic IP to bind to when VIP seems unhealthy.
+      --health-check-url HEALTH_CHECK_URL
+                            The URL to check. Assigns EIP to self if health check
+                            fails.
 
 Example:
 
