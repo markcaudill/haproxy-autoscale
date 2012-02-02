@@ -41,27 +41,32 @@ def main():
     logging.info('Generating configuration for haproxy.')
     new_configuration = generate_haproxy_config(template=args.template,
                                                 instances=instances)
+    
     # See if this new config is different. If it is then restart using it.
     # Otherwise just delete the temporary file and do nothing.
     logging.info('Comparing to existing configuration.')
-    logging.info('Existing configuration is outdated.')
-
-    # Overwite the real config file.
-    logging.info('Writing new configuration.')
-    file_contents(filename=args.output,
-                  content=generate_haproxy_config(template=args.template,
-                                                  instances=instances    ))
-
-    # Get PID if haproxy is already running.
-    logging.info('Fetching PID from %s.' % args.pid)
-    pid = file_contents(filename=args.pid)
-
-    # Restart haproxy.
-    logging.info('Restarting haproxy.')
-    command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
-    logging.info('Executing: %s' % command)
-    subprocess.call(command, shell=True)
-
+    old_configuration = file_contents(filename=args.output)
+    if new_configuration != old_configuration:
+        logging.info('Existing configuration is outdated.')
+        
+        # Overwite the existing config file.
+        logging.info('Writing new configuration.')
+        file_contents(filename=args.output,
+                      content=generate_haproxy_config(template=args.template,
+                                                      instances=instances    ))
+        
+        # Get PID if haproxy is already running.
+        logging.info('Fetching PID from %s.' % args.pid)
+        pid = file_contents(filename=args.pid)
+        
+        # Restart haproxy.
+        logging.info('Restarting haproxy.')
+        command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
+        logging.info('Executing: %s' % command)
+        subprocess.call(command, shell=True)
+    else:
+        logging.info('Configuration unchanged. Skipping restart.')
+    
     # Do a health check on the url if specified.
     try:
         if args.health_check_url and args.eip:

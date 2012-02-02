@@ -4,3 +4,4 @@ bin
 include
 lib*
 build
+templates/testing.tpl
