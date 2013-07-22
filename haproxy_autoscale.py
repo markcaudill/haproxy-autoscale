@@ -1,8 +1,8 @@
 from boto.ec2 import EC2Connection
 from boto.ec2.securitygroup import SecurityGroup
-import urllib2
 import logging
 from mako.template import Template
+import urllib2
 
 def get_self_instance_id():
     '''
