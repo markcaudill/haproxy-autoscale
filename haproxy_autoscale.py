@@ -1,8 +1,8 @@
 from boto.ec2 import EC2Connection
 from boto.ec2.securitygroup import SecurityGroup
-import urllib2
 import logging
 from mako.template import Template
+import urllib2
 
 def get_self_instance_id():
     '''
@@ -30,16 +30,34 @@ def get_running_instances(access_key=None, secret_key=None, security_group=None)
     Get all running instances. Only within a security group if specified.
     '''
     logging.debug('get_running_instances()')
+
+    instances_all_regions_list = []
     conn = EC2Connection(aws_access_key_id=access_key,
                          aws_secret_access_key=secret_key)
+    ec2_region_list = conn.get_all_regions()
 
     if security_group:
-        sg = SecurityGroup(connection=conn, name=security_group)
-        instances = [i for i in sg.instances() if i.state == 'running']
-        return instances
+        for index, region in enumerate(ec2_region_list):
+            conn = EC2Connection(aws_access_key_id=access_key,
+                                 aws_secret_access_key=secret_key,
+                                 region=ec2_region_list[index])
+            sg = SecurityGroup(connection=conn, name=security_group)
+            running_instances = [i for i in sg.instances() if i.state == 'running']
+            if running_instances:
+                for instance in running_instances:
+                    instances_all_regions_list.append(instance)
     else:
-        instances = conn.get_all_instances()
-        return instances
+        for index, region in enumerate(ec2_region_list):
+            conn = EC2Connection(aws_access_key_id=access_key,
+                                 aws_secret_access_key=secret_key,
+                                 region=ec2_region_list[index])
+            reserved_instances = conn.get_all_instances()
+            if reserved_instances:
+                for reservation in reserved_instances:
+                    for instance in reservation.instances:
+                        if instance.stat == 'running':
+                            instances_all_regions_list.append(instance)
+    return instances_all_regions_list
 
 
 def file_contents(filename=None, content=None):
