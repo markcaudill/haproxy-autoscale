@@ -53,10 +53,10 @@ def get_running_instances(access_key=None, secret_key=None, security_group=None)
                                  region=ec2_region_list[index])
             reserved_instances = conn.get_all_instances()
             if reserved_instances:
-                for reservation in enumerate(reserved_instances):
-                    for instance in enumerate(reservation):
-                        instances_all_regions_list.append(instance)
-                    #TODO(rremer): determine ec2 instance state=running
+                for reservation in reserved_instances:
+                    for instance in reservation.instances:
+                        if instance.stat == 'running':
+                            instances_all_regions_list.append(instance)
     return instances_all_regions_list
 
 
