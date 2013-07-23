@@ -25,39 +25,29 @@ def steal_elastic_ip(access_key=None, secret_key=None, ip=None):
     conn.associate_address(instance_id=instance_id, public_ip=ip)
 
 
-def get_running_instances(access_key=None, secret_key=None, security_group=None):
+def get_running_instances(access_key=None, secret_key=None, group=None):
     '''
-    Get all running instances. Only within a security group if specified.
+    Get all running instances that have a tag that matches
+    'haproxy-autoscale-group' => group.
     '''
     logging.debug('get_running_instances()')
-
-    instances_all_regions_list = []
+    instances = []
+    # Get all the regions.
     conn = EC2Connection(aws_access_key_id=access_key,
                          aws_secret_access_key=secret_key)
     ec2_region_list = conn.get_all_regions()
-
-    if security_group:
-        for index, region in enumerate(ec2_region_list):
-            conn = EC2Connection(aws_access_key_id=access_key,
-                                 aws_secret_access_key=secret_key,
-                                 region=ec2_region_list[index])
-            sg = SecurityGroup(connection=conn, name=security_group)
-            running_instances = [i for i in sg.instances() if i.state == 'running']
-            if running_instances:
-                for instance in running_instances:
-                    instances_all_regions_list.append(instance)
-    else:
-        for index, region in enumerate(ec2_region_list):
-            conn = EC2Connection(aws_access_key_id=access_key,
-                                 aws_secret_access_key=secret_key,
-                                 region=ec2_region_list[index])
-            reserved_instances = conn.get_all_instances()
-            if reserved_instances:
-                for reservation in reserved_instances:
-                    for instance in reservation.instances:
-                        if instance.stat == 'running':
-                            instances_all_regions_list.append(instance)
-    return instances_all_regions_list
+    # Check each region for running instances.
+    for index, region in enumerate(ec2_region_list):
+        conn = EC2Connection(aws_access_key_id=access_key,
+                             aws_secret_access_key=secret_key,
+                             region=ec2_region_list[index])
+        for reservation in conn.get_all_instances():
+            for instance in reservation.instances:
+                if instance.state == 'running':
+                    if 'haproxy-autoscale-group' in instance.tags:
+                        if instance.tags['haproxy-autoscale-group'] == group:
+                            instances.append(instance)
+    return instances
 
 
 def file_contents(filename=None, content=None):
@@ -70,7 +60,7 @@ def file_contents(filename=None, content=None):
         f = open(filename, 'w')
         f.write(content)
         f.close()
-    
+
     try:
         f = open(filename, 'r')
         text = f.read()

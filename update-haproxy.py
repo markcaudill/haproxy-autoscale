@@ -1,6 +1,5 @@
 import boto.ec2.connection
 from boto.ec2.connection import EC2Connection
-from boto.ec2.securitygroup import SecurityGroup
 from boto.ec2.instance import Instance
 from mako.template import Template
 import argparse
@@ -13,8 +12,8 @@ import urllib2
 
 def main():
     # Parse up the command line arguments.
-    parser = argparse.ArgumentParser(description='Update haproxy to use all instances running in a security group.')
-    parser.add_argument('--security-group', required=True, nargs='+', type=str)
+    parser = argparse.ArgumentParser(description='Update haproxy to use all instances running in a group.')
+    parser.add_argument('--group', required=True, nargs='+', type=str)
     parser.add_argument('--access-key', required=True)
     parser.add_argument('--secret-key', required=True)
     parser.add_argument('--output', default='haproxy.cfg',
@@ -30,35 +29,35 @@ def main():
                         help='The URL to check. Assigns EIP to self if health check fails.')
     args = parser.parse_args()
 
-    # Fetch a list of all the instances in these security groups.
+    # Fetch a list of all the instances in these groups.
     instances = {}
-    for security_group in args.security_group:
-        logging.info('Getting instances for %s.' % security_group)
-        instances[security_group] = get_running_instances(access_key=args.access_key,
-                                                          secret_key=args.secret_key,
-                                                          security_group=security_group)
+    for group in args.group:
+        logging.info('Getting instances for %s.' % group)
+        instances[group] = get_running_instances(access_key=args.access_key,
+                                                 secret_key=args.secret_key,
+                                                 group=group)
     # Generate the new config from the template.
     logging.info('Generating configuration for haproxy.')
     new_configuration = generate_haproxy_config(template=args.template,
                                                 instances=instances)
-    
+
     # See if this new config is different. If it is then restart using it.
     # Otherwise just delete the temporary file and do nothing.
     logging.info('Comparing to existing configuration.')
     old_configuration = file_contents(filename=args.output)
     if new_configuration != old_configuration:
         logging.info('Existing configuration is outdated.')
-        
+
         # Overwite the existing config file.
         logging.info('Writing new configuration.')
         file_contents(filename=args.output,
                       content=generate_haproxy_config(template=args.template,
                                                       instances=instances    ))
-        
+
         # Get PID if haproxy is already running.
         logging.info('Fetching PID from %s.' % args.pid)
         pid = file_contents(filename=args.pid)
-        
+
         # Restart haproxy.
         logging.info('Restarting haproxy.')
         command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
@@ -66,7 +65,7 @@ def main():
         subprocess.call(command, shell=True)
     else:
         logging.info('Configuration unchanged. Skipping restart.')
-    
+
     # Do a health check on the url if specified.
     try:
         if args.health_check_url and args.eip:

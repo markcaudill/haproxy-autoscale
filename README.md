@@ -12,11 +12,11 @@ the load balancer to know to send traffic to new instances and to stop sending
 traffic to deleted instances.
 
 Enter haproxy-autoscale. This is a wrapper of sorts that will automatically add
-all instances in a security group that are currently in a running state to the
-haproxy configuration. It then restarts haproxy in a manner which gracefully
-terminates connections so there is no downtime. Also, haproxy will only be
-restarted if there are changes. If there are no changes in the isntances that
-should be sent traffic then it just exits.
+all instances with a particular metadata tag that are currently in a running
+state to the haproxy configuration. It then restarts haproxy in a manner which
+gracefully terminates connections so there is no downtime. Also, haproxy will
+only be restarted if there are changes. If there are no changes in the isntances
+that should be sent traffic then it just exits.
 
 I've actually bundled the haproxy binary with this repo to make things easier
 when getting started.
@@ -38,21 +38,28 @@ customize it to suit your needs or you can specify a different on on the
 command line. Make sure to read the existing template to see what variables
 will be available to use.
 
+Instances are grouped by using a metatdata tag called
+`haproxy-autoscale-group`. On your instances or autoscaling groups, set that to
+whatever you want and specify it on the command line.
+
+Example using autoscaling groups:
+
+    as-create-auto-scaling-group MyTagASG --launch-configuration MyTagLC --availability-zones us-east-1a --min-size 1 --max-size 10 --tag "haproxy-autoscale-group=webheads"
+
 ## Usage ##
 haproxy-autoscale was designed to be run from the load balancer itself as a cron
 job. Ideally it would be run every minute.
 
-    update-haproxy.py [-h] --security-group SECURITY_GROUP
-                      [SECURITY_GROUP ...] --access-key ACCESS_KEY
-                      --secret-key SECRET_KEY [--output OUTPUT]
-                      [--template TEMPLATE] [--haproxy HAPROXY] [--pid PID]
-                      [--eip EIP] [--health-check-url HEALTH_CHECK_URL]
+    usage: update-haproxy.py [-h] --group GROUP [GROUP ...] --access-key
+                             ACCESS_KEY --secret-key SECRET_KEY [--output OUTPUT]
+                             [--template TEMPLATE] [--haproxy HAPROXY] [--pid PID]
+                             [--eip EIP] [--health-check-url HEALTH_CHECK_URL]
 
-    Update haproxy to use all instances running in a security group.
-
+    Update haproxy to use all instances running in a group.
+    
     optional arguments:
       -h, --help            show this help message and exit
-      --security-group SECURITY_GROUP [SECURITY_GROUP ...]
+      --group GROUP [GROUP ...]
       --access-key ACCESS_KEY
       --secret-key SECRET_KEY
       --output OUTPUT       Defaults to haproxy.cfg if not specified.
@@ -68,9 +75,10 @@ job. Ideally it would be run every minute.
 
 Example:
 
-    /usr/bin/python update-haproxy.py --access-key='SOMETHING' --secret-key='SoMeThInGeLsE' --security-group='webheads' 'tomcat-servers'
+    /usr/bin/python update-haproxy.py --access-key='SOMETHING' --secret-key='SoMeThInGeLsE' --group='webheads' 'tomcat-servers'
 
 ## Changelog ##
 * v0.1 - Initial release.
 * v0.2 - Added ability to specify multiple security groups. This version is
        **not** compatible with previous versions' templates.
+* v0.3 - Now use metadata tags instead of security groups to group instances.
