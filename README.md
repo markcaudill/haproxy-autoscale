@@ -74,3 +74,4 @@ Example:
 * v0.1 - Initial release.
 * v0.2 - Added ability to specify multiple security groups. This version is
        **not** compatible with previous versions' templates.
+* v0.3 - Added support for all regions.
