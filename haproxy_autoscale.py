@@ -44,7 +44,7 @@ def get_running_instances(access_key=None, secret_key=None, security_group=None)
             running_instances = []
             for s in conn.get_all_security_groups():
                if s.name == security_group:
-                   running_instances = [i for i in sg.instances() if i.state == 'running']
+                   running_instances = [i for i in s.instances() if i.state == 'running']
             if running_instances:
                 for instance in running_instances:
                     instances_all_regions_list.append(instance)
