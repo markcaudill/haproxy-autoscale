@@ -2,8 +2,8 @@
 
 from setuptools import setup
 
-setup(name='haproxy-update',
-      version='1.0',
+setup(name='haproxy-autoscale',
+      version='0.4',
       description='HAProxy wrapper for handling auto-scaling EC2 instances.',
       author='Mark Caudill',
       author_email='mark@markcaudill.me',
