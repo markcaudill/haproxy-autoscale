@@ -47,8 +47,8 @@ class templateTestCase(unittest.TestCase):
 
 
     def tearDown(self):
-        pass
-        #os.remove(self.test_conf_filepath)
+        #print("Config file generated: %s" %self.test_conf_filepath)
+        os.remove(self.test_conf_filepath)
 
     def test_simple_config(self):
 
