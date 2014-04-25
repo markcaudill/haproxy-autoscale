@@ -11,7 +11,7 @@ example_sg_1:
         private_dns_name: 10.199.21.54
         tags:
             Name: example-instance-2
-            Salesforceenvironment: intdev
+            Salesforceenvironment: dev
             Appname: HelloWorld
             AppPort: 8080
             AppVersion: 42
@@ -21,7 +21,7 @@ example_sg_1:
         private_dns_name: 10.178.27.130
         tags:
             Name: example-instance-3
-            SalesforceEnvironment: intdev
+            Environment: dev
             AppName: HelloWorld
             AppPort: 8080
             AppVersion: 42
@@ -32,7 +32,7 @@ example_sg_1:
         private_dns_name: 10.109.12.197
         tags:
             Name: example-instance-5
-            SalesforceEnvironment: intdev
+            Environment: dev
             AppName: Foobar
             AppPort: 8080
             AppVersion: 42
@@ -43,7 +43,7 @@ example_sg_1:
         private_dns_name: 10.168.27.129
         tags:
             Name: example-instance-6
-            SalesforceEnvironment: intdev
+            Environment: dev
             AppName: Foobar
             AppPort: 8080
             AppVersion: 42
@@ -54,7 +54,19 @@ example_sg_1:
         private_dns_name: 10.108.12.198
         tags:
             Name: example-instance-4
-            SalesforceEnvironment: intdev
+            Environment: prd
+            AppName: HelloWorld
+            AppPort: 8080
+            AppVersion: 42
+            BooBaz: LoremIpsum
+            RedirectURI: /example/login.html
+    i-6d4cfa7b:
+        id: i-6d4cfa7b
+        public_dns_name: ec2-117-116-21-15.us-west-2.compute.amazonaws.com
+        private_dns_name: 10.108.12.198
+        tags:
+            Name: example-instance-5
+            Environment: dev
             AppName: HelloWorld
             AppPort: 8080
             AppVersion: 42

@@ -47,7 +47,7 @@ class templateTestCase(unittest.TestCase):
 
 
     def tearDown(self):
-        #print("Config file generated: %s" %self.test_conf_filepath)
+        #pass
         os.remove(self.test_conf_filepath)
 
     def test_simple_config(self):
@@ -69,9 +69,38 @@ class templateTestCase(unittest.TestCase):
     def test_find_required_tag(self):
         pass
 
+    @unittest.skip('stub')
     def test_autobackend_config(self):
         template = os.path.join(self.data_dir_str,
                                             'autobackends_example.tpl')
+        self.test_conf_filepath = NamedTemporaryFile(delete=True).name
+        haproxy_conf_str = haproxy_autoscale.generate_haproxy_config(
+                                        template=template,
+                                        instances=self.running_instances_mock)
+        haproxy_autoscale.file_contents(filename=self.test_conf_filepath,
+                                        content=haproxy_conf_str)
+        test_conf_output = check_conf(conf_filepath=self.test_conf_filepath)
+        self.assertEqual(test_conf_output[0], True,
+                     ("Configuration parsing failed:\n%s"
+                      %test_conf_output[1]))
+
+    def test_autobackend_one_prefix(self):
+        template = os.path.join(self.data_dir_str,
+                                            'autobackends_one_prefix_example.tpl')
+        self.test_conf_filepath = NamedTemporaryFile(delete=True).name
+        haproxy_conf_str = haproxy_autoscale.generate_haproxy_config(
+                                        template=template,
+                                        instances=self.running_instances_mock)
+        haproxy_autoscale.file_contents(filename=self.test_conf_filepath,
+                                        content=haproxy_conf_str)
+        test_conf_output = check_conf(conf_filepath=self.test_conf_filepath)
+        self.assertEqual(test_conf_output[0], True,
+                     ("Configuration parsing failed:\n%s"
+                      %test_conf_output[1]))
+
+    def test_autobackend_three_prefixes(self):
+        template = os.path.join(self.data_dir_str,
+                                            'autobackends_three_prefixes_example.tpl')
         self.test_conf_filepath = NamedTemporaryFile(delete=True).name
         haproxy_conf_str = haproxy_autoscale.generate_haproxy_config(
                                         template=template,

@@ -92,10 +92,8 @@ def generate_haproxy_config(template=None, instances=None):
 
 class Backends():
     # instances without these tags will be excluded from backends
-    required_keys = ['SalesforceEnvironment',
-                     'AppName',
-                     'AppPort',
-                     'AppVersion']
+    required_keys = ['AppName',
+                     'AppPort']
 
     backend_templates = {'default': {'mode':'http',
                                      'option':'httpchk',
@@ -107,13 +105,14 @@ class Backends():
                %__version__)
 
 
-    def get_acls(self, instances_dict, tabindent, domain):
+    def get_acls(self, instances_dict, tabindent, domain, prefixes=None):
         """Generate neatly printed cfg-worthy backends for haproxy.
 
             Args:
                 instances_dict: haproxy_autoscale.get_running_instances return.
                 tabindent: Int, number of spaces to prepend hanging config lines.
                 domain: Str, TLD to serve all backends from.
+                prefixes: List, strings to prepend to acls and backends.
             Returns:
                 return_comment: Str, version comment information.
         """
@@ -128,6 +127,13 @@ class Backends():
         self.all_backends = []
         self.included_instances = []
         self.excluded_instances = []
+
+        if type(prefixes) is list:
+            for prefix in prefixes:
+                self.required_keys.append(prefix)
+        else:
+            prefixes = []
+
         for instance in self.all_instances:
             instance.missing_tags = []
             for key in self.required_keys:
@@ -136,10 +142,13 @@ class Backends():
             if len(instance.missing_tags) is 0:
                 self.included_instances.append(instance)
                 app_name = instance.tags['AppName']
-                app_version = instance.tags['AppVersion']
-                backend_name = "%s.v%s" %(app_name, app_version)
-                #TODO: until query-parameter acls for app version is implemented
-                backend_name = app_name
+                prefix_str = ''
+                if len(prefixes) > 0:
+                    for prefix in prefixes:
+                        prefix_str = prefix_str + "%s-" %instance.tags[prefix]
+                
+                backend_name = "%s%s" %(prefix_str, app_name)
+                instance.tags['backend'] = backend_name
                 if backend_name not in self.all_backends:
                     self.all_backends.append(backend_name)
             else:
@@ -190,7 +199,7 @@ class Backends():
 
             # populate backend with instances
             for instance in self.included_instances:
-                if instance.tags['AppName'] == backend:
+                if instance.tags['backend'] == backend:
                     return_str = return_str + ("\n%sserver %s %s:%s"
                                                %(tabindent_str,
                                                  instance.id,
