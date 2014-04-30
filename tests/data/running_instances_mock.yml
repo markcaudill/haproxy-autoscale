@@ -1,0 +1,73 @@
+example_sg_1:
+    i-cef14aa0:
+        id: i-cef14aa0
+        public_dns_name: ec2-54-202-50-199.us-west-2.compute.amazonaws.com
+        private_dns_name: 10.198.26.60
+        tags:
+            Name: example-instance-1
+    i-5e4cec7d:
+        id: i-5e4cec7d
+        public_dns_name: ec2-54-201-40-167.us-west-1.compute.amazonaws.com
+        private_dns_name: 10.199.21.54
+        tags:
+            Name: example-instance-2
+            Salesforceenvironment: dev
+            Appname: HelloWorld
+            AppPort: 8080
+            AppVersion: 42
+    i-5e4cec7d:
+        id: i-b0dc57eb
+        public_dns_name: ec2-218-214-80-76.us-east-1.compute.amazonaws.com
+        private_dns_name: 10.178.27.130
+        tags:
+            Name: example-instance-3
+            Environment: dev
+            AppName: HelloWorld
+            AppPort: 8080
+            AppVersion: 42
+            RedirectURI: /example/login.html
+    i-7ae2f522:
+        id: i-7ae2f522
+        public_dns_name: ec2-126-116-20-15.us-west-1.compute.amazonaws.com
+        private_dns_name: 10.109.12.197
+        tags:
+            Name: example-instance-5
+            Environment: dev
+            AppName: Foobar
+            AppPort: 8080
+            AppVersion: 42
+            RedirectURI: /example/login.html
+    i-7ae2f522:
+        id: i-7ae2f522
+        public_dns_name: ec2-117-214-30-66.us-east-1.compute.amazonaws.com
+        private_dns_name: 10.168.27.129
+        tags:
+            Name: example-instance-6
+            Environment: dev
+            AppName: Foobar
+            AppPort: 8080
+            AppVersion: 42
+            RedirectURI: /example/login.html
+    i-4e4cfc7a:
+        id: i-4e4cfc7a
+        public_dns_name: ec2-116-116-20-15.us-west-1.compute.amazonaws.com
+        private_dns_name: 10.108.12.198
+        tags:
+            Name: example-instance-4
+            Environment: prd
+            AppName: HelloWorld
+            AppPort: 8080
+            AppVersion: 42
+            BooBaz: LoremIpsum
+            RedirectURI: /example/login.html
+    i-6d4cfa7b:
+        id: i-6d4cfa7b
+        public_dns_name: ec2-117-116-21-15.us-west-2.compute.amazonaws.com
+        private_dns_name: 10.108.12.198
+        tags:
+            Name: example-instance-5
+            Environment: dev
+            AppName: HelloWorld
+            AppPort: 8080
+            AppVersion: 42
+            RedirectURI: /example/login.html
