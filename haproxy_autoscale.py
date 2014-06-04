@@ -1,10 +1,10 @@
 from boto.ec2 import EC2Connection
-from boto.ec2.securitygroup import SecurityGroup
 import logging
-from mako.template import Template
+import subprocess
 import urllib2
+from mako.template import Template
 
-__version__ = '0.4'
+__version__ = '0.4.1'
 
 def get_self_instance_id():
     '''
@@ -38,29 +38,20 @@ def get_running_instances(access_key=None, secret_key=None, security_group=None)
                          aws_secret_access_key=secret_key)
     ec2_region_list = conn.get_all_regions()
 
-    if security_group:
-        for index, region in enumerate(ec2_region_list):
-            conn = EC2Connection(aws_access_key_id=access_key,
-                                 aws_secret_access_key=secret_key,
-                                 region=ec2_region_list[index])
-            running_instances = []
-            for s in conn.get_all_security_groups():
-               if s.name == security_group:
-                   running_instances = [i for i in s.instances() if i.state == 'running']
-            if running_instances:
-                for instance in running_instances:
-                    instances_all_regions_list.append(instance)
-    else:
-        for index, region in enumerate(ec2_region_list):
-            conn = EC2Connection(aws_access_key_id=access_key,
-                                 aws_secret_access_key=secret_key,
-                                 region=ec2_region_list[index])
-            reserved_instances = conn.get_all_instances()
-            if reserved_instances:
-                for reservation in reserved_instances:
-                    for instance in reservation.instances:
-                        if instance.stat == 'running':
-                            instances_all_regions_list.append(instance)
+    for index, region in enumerate(ec2_region_list):
+        conn = EC2Connection(aws_access_key_id=access_key,
+                             aws_secret_access_key=secret_key,
+                             region=ec2_region_list[index])
+
+        running_instances = []
+        for s in conn.get_all_security_groups():
+            if s.name == security_group:
+                running_instances = [i for i in s.instances() if i.state == 'running']
+
+        if running_instances:
+            for instance in running_instances:
+                instances_all_regions_list.append(instance)
+
     return instances_all_regions_list
 
 
@@ -91,7 +82,28 @@ def generate_haproxy_config(template=None, instances=None):
     '''
     return Template(filename=template).render(instances=instances)
 
+def restart_haproxy(args):
+    '''
+    Restart haproxy, either by an Ubuntu service or standalone binary
+    '''
+    logging.info('Restarting haproxy.')
+    
+    if args.haproxy:
+        # Get PID if haproxy is already running.
+        logging.debug('Fetching PID from %s.' % args.pid)
+        pid = file_contents(filename=args.pid)    
+        command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
+    
+    else:
+        command = "service %s restart" % args.servicename
+    
+    logging.debug('Executing: %s' % command)
+    subprocess.call(command, shell=True)    
 
+
+"""
+this class is used for the tests functionality
+"""
 class Backends():
     # instances without these tags will be excluded from backends
     required_keys = ['AppName',
