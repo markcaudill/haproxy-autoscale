@@ -1,4 +1,4 @@
-from boto.ec2 import EC2Connection
+from boto.ec2 import EC2Connection, get_region
 import logging
 import subprocess
 import urllib2
@@ -27,21 +27,24 @@ def steal_elastic_ip(access_key=None, secret_key=None, ip=None):
     conn.associate_address(instance_id=instance_id, public_ip=ip)
 
 
-def get_running_instances(access_key=None, secret_key=None, security_group=None):
+def get_running_instances(access_key=None, secret_key=None, security_group=None, region=None):
     '''
     Get all running instances. Only within a security group if specified.
     '''
     logging.debug('get_running_instances()')
 
     instances_all_regions_list = []
-    conn = EC2Connection(aws_access_key_id=access_key,
-                         aws_secret_access_key=secret_key)
-    ec2_region_list = conn.get_all_regions()
+    if region is None:
+        conn = EC2Connection(aws_access_key_id=access_key,
+                             aws_secret_access_key=secret_key)
+        ec2_region_list = conn.get_all_regions()
+    else:
+        ec2_region_list = [get_region(region)]
 
-    for index, region in enumerate(ec2_region_list):
+    for region in ec2_region_list:
         conn = EC2Connection(aws_access_key_id=access_key,
                              aws_secret_access_key=secret_key,
-                             region=ec2_region_list[index])
+                             region=region)
 
         running_instances = []
         for s in conn.get_all_security_groups():
