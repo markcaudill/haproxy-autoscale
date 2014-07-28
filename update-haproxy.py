@@ -11,6 +11,8 @@ def parse_args():
     parser.add_argument('--security-group', required=True, nargs='+', type=str)
     parser.add_argument('--access-key', required=True)
     parser.add_argument('--secret-key', required=True)
+    parser.add_argument('--region', default=None,
+                        help='Defaults to all regions if not specified.')
     parser.add_argument('--output', default='haproxy.cfg',
                         help='Defaults to ./haproxy.cfg if not specified.')
     parser.add_argument('--template', default='templates/haproxy.tpl',
@@ -45,7 +47,8 @@ def main(args):
         logging.info('Getting instances for %s.' % security_group)
         instances[security_group] = get_running_instances(access_key=args.access_key,
                                                           secret_key=args.secret_key,
-                                                          security_group=security_group)
+                                                          security_group=security_group,
+                                                          region=args.region)
 
     # Generate the new config from the template.
     logging.info('Generating configuration for haproxy.')
