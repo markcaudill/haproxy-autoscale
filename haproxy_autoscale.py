@@ -1,4 +1,5 @@
 from boto.ec2 import EC2Connection, get_region
+import boto.exception
 import logging
 import subprocess
 import urllib2
@@ -47,9 +48,12 @@ def get_running_instances(access_key=None, secret_key=None, security_group=None,
                              region=region)
 
         running_instances = []
-        for s in conn.get_all_security_groups():
-            if s.name == security_group:
-                running_instances.extend([i for i in s.instances() if i.state == 'running'])
+        try:
+            for s in conn.get_all_security_groups():
+                if s.name == security_group:
+                    running_instances.extend([i for i in s.instances() if i.state == 'running'])
+        except boto.exception.EC2ResponseError:
+            logging.error('Region [' + region.name + '] inaccessible')
 
         if running_instances:
             for instance in running_instances:
