@@ -38,6 +38,33 @@ customize it to suit your needs or you can specify a different on on the
 command line. Make sure to read the existing template to see what variables
 will be available to use.
 
+### IAM ###
+Below is an example policy that should provide the minimal access necessary for
+this to work.
+
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "Stmt1458960803000",
+                "Effect": "Allow",
+                "Action": [
+                    "ec2:AssociateAddress",
+                    "ec2:DescribeAddresses",
+                    "ec2:DescribeAvailabilityZones",
+                    "ec2:DescribeInstanceAttribute",
+                    "ec2:DescribeInstanceStatus",
+                    "ec2:DescribeInstances",
+                    "ec2:DescribeRegions",
+                    "ec2:DescribeSecurityGroups"
+                ],
+                "Resource": [
+                    "arn:aws:ec2:*"
+                ]
+            }
+        ]
+    }
+
 ## Usage ##
 haproxy-autoscale was designed to be run from the load balancer itself as a cron
 job. Ideally it would be run every minute.
