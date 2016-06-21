@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import argparse
 import logging
 from haproxy_autoscale import steal_elastic_ip
