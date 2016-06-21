@@ -31,6 +31,10 @@ templates, outputs and pid files for each.
 Run `sudo python setup.py install` and if everything goes well you're ready to
 configure (if you have complex needs) and run the update-haproxy.py command.
 
+OR
+
+``sudo pip install git+https://github.com/markcaudill/haproxy-autoscale``
+
 ## Configuration ##
 Most of the configuration is done via command line options. The only
 configuration that may need to be done is the haproxy.cfg template. You can
