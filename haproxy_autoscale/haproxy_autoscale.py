@@ -89,24 +89,6 @@ def generate_haproxy_config(template=None, instances=None):
     '''
     return Template(filename=template).render(instances=instances)
 
-def restart_haproxy(args):
-    '''
-    Restart haproxy, either by an Ubuntu service or standalone binary
-    '''
-    logging.info('Restarting haproxy.')
-    
-    if args.haproxy:
-        # Get PID if haproxy is already running.
-        logging.debug('Fetching PID from %s.' % args.pid)
-        pid = file_contents(filename=args.pid)    
-        command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
-    
-    else:
-        command = "service %s restart" % args.servicename
-    
-    logging.debug('Executing: %s' % command)
-    subprocess.call(command, shell=True)    
-
 def reload_haproxy(args):
     '''
     Reload haproxy, either by an Ubuntu service or standalone binary
