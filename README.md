@@ -84,8 +84,9 @@ job. Ideally it would be run every minute.
     optional arguments:
       -h, --help            show this help message and exit
       --security-group SECURITY_GROUP [SECURITY_GROUP ...]
-      --access-key ACCESS_KEY
-      --secret-key SECRET_KEY
+      [--access-key ACCESS_KEY
+      --secret-key SECRET_KEY]
+                            Optional parameters in case the policy is assigned to the instance's role
       --output OUTPUT       Defaults to haproxy.cfg if not specified.
       --template TEMPLATE
       --haproxy HAPROXY     The haproxy binary to call. Defaults to haproxy if not
@@ -107,3 +108,4 @@ Example:
        **not** compatible with previous versions' templates.
 * v0.3 - Added support for all regions.
 * v0.4 - Added accessor class for autobackend generation (see tests/data/autobackends_example.tpl for example usage)
+* v0.5 - Made access and security keys optional
