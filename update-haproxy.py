@@ -10,8 +10,8 @@ def parse_args():
     # Parse up the command line arguments.
     parser = argparse.ArgumentParser(description='Update haproxy to use all instances running in a security group.')
     parser.add_argument('--security-group', required=True, nargs='+', type=str)
-    parser.add_argument('--access-key', required=True)
-    parser.add_argument('--secret-key', required=True)
+    parser.add_argument('--access-key')
+    parser.add_argument('--secret-key')
     parser.add_argument('--region', default=None,
                         help='Defaults to all regions if not specified.')
     parser.add_argument('--output', default='haproxy.cfg',
