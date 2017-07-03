@@ -4,7 +4,7 @@ import subprocess
 import logging
 import sys
 import time
-from haproxy_autoscale import get_running_instances, file_contents, generate_haproxy_config, restart_haproxy
+from haproxy_autoscale import get_running_instances, file_contents, generate_haproxy_config, reload_haproxy
 
 def parse_args():
     # Parse up the command line arguments.
@@ -19,7 +19,7 @@ def parse_args():
     parser.add_argument('--template', default='templates/haproxy.tpl',
                         help="the template you want to use for generating the HAproxys config file")
     parser.add_argument('--servicename', default="haproxy", 
-                        help='The OS service name to restart (Ubuntu only)')
+                        help='The OS service name to reload (Ubuntu only)')
     parser.add_argument('--haproxy', default=None,
                         help='The haproxy binary to call. Defaults to haproxy if not specified.\n\
                         Not needed if --servicename is used')
@@ -33,11 +33,11 @@ def parse_args():
     
     # syntax checking
     if args.servicename != "haproxy" and args.haproxy:
-        logging.fatal("you must supply either \"--servicename\" OR \"--haproxy\", dont know what to restart now")
+        logging.fatal("you must supply either \"--servicename\" OR \"--haproxy\", dont know what to reload now")
         sys.exit(2)
     
     if args.servicename == "haproxy" and not args.haproxy:
-        logging.info("no \"--servicename\" OR \"--haproxy\" arguments found, defaulting to restarting service haproxy")
+        logging.info("no \"--servicename\" OR \"--haproxy\" arguments found, defaulting to reloading service haproxy")
     
     return args
     
@@ -56,7 +56,7 @@ def main(args):
     new_configuration = generate_haproxy_config(template=args.template,
                                                 instances=instances)
     
-    # See if this new config is different. If it is then restart using it.
+    # See if this new config is different. If it is then reload using it.
     # Otherwise just delete the temporary file and do nothing.
     logging.info('Comparing to existing configuration.')
     old_configuration = file_contents(filename=args.output)
@@ -70,10 +70,10 @@ def main(args):
                       content=generate_haproxy_config(template=args.template,
                                                       instances=instances    ))
         
-        restart_haproxy(args)
+        reload_haproxy(args)
         
     else:
-        logging.info('Configuration unchanged. Skipping restart.')
+        logging.info('Configuration unchanged. Skipping reload.')
     
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
