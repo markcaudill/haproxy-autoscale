@@ -13,9 +13,9 @@ traffic to deleted instances.
 
 Enter haproxy-autoscale. This is a wrapper of sorts that will automatically add
 all instances in a security group that are currently in a running state to the
-haproxy configuration. It then restarts haproxy in a manner which gracefully
+haproxy configuration. It then reloads haproxy in a manner which gracefully
 terminates connections so there is no downtime. Also, haproxy will only be
-restarted if there are changes. If there are no changes in the isntances that
+reloaded if there are changes. If there are no changes in the isntances that
 should be sent traffic then it just exits.
 
 I've actually bundled the haproxy binary with this repo to make things easier
