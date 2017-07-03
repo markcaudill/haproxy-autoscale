@@ -102,7 +102,7 @@ def reload_haproxy(args):
         command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
     
     else:
-        command = "service %s reload" % args.servicename
+        command = "/sbin/service %s reload" % args.servicename
     
     logging.debug('Executing: %s' % command)
     subprocess.call(command, shell=True)    
