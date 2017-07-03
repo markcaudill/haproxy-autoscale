@@ -107,6 +107,23 @@ def restart_haproxy(args):
     logging.debug('Executing: %s' % command)
     subprocess.call(command, shell=True)    
 
+def reload_haproxy(args):
+    '''
+    Reload haproxy, either by an Ubuntu service or standalone binary
+    '''
+    logging.info('Reloading haproxy.')
+    
+    if args.haproxy:
+        # Get PID if haproxy is already running.
+        logging.debug('Fetching PID from %s.' % args.pid)
+        pid = file_contents(filename=args.pid)    
+        command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
+    
+    else:
+        command = "service %s reload" % args.servicename
+    
+    logging.debug('Executing: %s' % command)
+    subprocess.call(command, shell=True)    
 
 """
 this class is used for the tests functionality
