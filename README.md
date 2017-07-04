@@ -13,9 +13,9 @@ traffic to deleted instances.
 
 Enter haproxy-autoscale. This is a wrapper of sorts that will automatically add
 all instances in a security group that are currently in a running state to the
-haproxy configuration. It then restarts haproxy in a manner which gracefully
+haproxy configuration. It then reloads haproxy in a manner which gracefully
 terminates connections so there is no downtime. Also, haproxy will only be
-restarted if there are changes. If there are no changes in the isntances that
+reloaded if there are changes. If there are no changes in the isntances that
 should be sent traffic then it just exits.
 
 I've actually bundled the haproxy binary with this repo to make things easier
@@ -84,8 +84,9 @@ job. Ideally it would be run every minute.
     optional arguments:
       -h, --help            show this help message and exit
       --security-group SECURITY_GROUP [SECURITY_GROUP ...]
-      --access-key ACCESS_KEY
-      --secret-key SECRET_KEY
+      [--access-key ACCESS_KEY
+      --secret-key SECRET_KEY]
+                            Optional parameters in case the policy is assigned to the instance's role
       --output OUTPUT       Defaults to haproxy.cfg if not specified.
       --template TEMPLATE
       --haproxy HAPROXY     The haproxy binary to call. Defaults to haproxy if not
@@ -107,3 +108,4 @@ Example:
        **not** compatible with previous versions' templates.
 * v0.3 - Added support for all regions.
 * v0.4 - Added accessor class for autobackend generation (see tests/data/autobackends_example.tpl for example usage)
+* v0.5 - Made access and security keys optional, replaced haproxy restart to reload, added path to the service command

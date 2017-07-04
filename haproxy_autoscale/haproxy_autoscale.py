@@ -89,11 +89,11 @@ def generate_haproxy_config(template=None, instances=None):
     '''
     return Template(filename=template).render(instances=instances)
 
-def restart_haproxy(args):
+def reload_haproxy(args):
     '''
-    Restart haproxy, either by an Ubuntu service or standalone binary
+    Reload haproxy, either by an Ubuntu service or standalone binary
     '''
-    logging.info('Restarting haproxy.')
+    logging.info('Reloading haproxy.')
     
     if args.haproxy:
         # Get PID if haproxy is already running.
@@ -102,11 +102,10 @@ def restart_haproxy(args):
         command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
     
     else:
-        command = "service %s restart" % args.servicename
+        command = "/sbin/service %s reload" % args.servicename
     
     logging.debug('Executing: %s' % command)
     subprocess.call(command, shell=True)    
-
 
 """
 this class is used for the tests functionality
