@@ -7,3 +7,4 @@ build
 templates/testing.tpl
 local
 haproxy.cfg
+.idea
