@@ -78,6 +78,7 @@ job. Ideally it would be run every minute.
                       --secret-key SECRET_KEY [--output OUTPUT]
                       [--template TEMPLATE] [--haproxy HAPROXY] [--pid PID]
                       [--eip EIP] [--health-check-url HEALTH_CHECK_URL]
+                      [--safe-mode]
 
     Update haproxy to use all instances running in a security group.
 
@@ -97,10 +98,16 @@ job. Ideally it would be run every minute.
       --health-check-url HEALTH_CHECK_URL
                             The URL to check. Assigns EIP to self if health check
                             fails.
+      --safe-mode           If enabled, the script exits if there is any AWS exception.
+                            E.g., wrong key/secret.'
+                            Also if there is no instance in any of the security groups, haproxy conf
+                            will be generated but NOT reloaded.
 
 Example:
 
     /usr/bin/python update-haproxy.py --access-key='SOMETHING' --secret-key='SoMeThInGeLsE' --security-group='webheads' 'tomcat-servers'
+
+    /usr/bin/python update-haproxy.py --access-key='SOMETHING' --secret-key='SoMeThInGeLsE' --security-group='webheads' 'tomcat-servers' --safe-mode
 
 ## Changelog ##
 * v0.1 - Initial release.
@@ -109,3 +116,4 @@ Example:
 * v0.3 - Added support for all regions.
 * v0.4 - Added accessor class for autobackend generation (see tests/data/autobackends_example.tpl for example usage)
 * v0.5 - Made access and security keys optional, replaced haproxy restart to reload, added path to the service command
+* v0.6 - Adding --safe-mode: exit on aws exception, and no reload when security group is empty.
