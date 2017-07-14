@@ -5,7 +5,7 @@ import subprocess
 import urllib2
 from mako.template import Template
 
-__version__ = '0.4.1'
+__version__ = '0.5.0'
 
 
 def get_self_instance_id():

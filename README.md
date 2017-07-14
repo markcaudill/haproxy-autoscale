@@ -116,4 +116,7 @@ Example:
 * v0.3 - Added support for all regions.
 * v0.4 - Added accessor class for autobackend generation (see tests/data/autobackends_example.tpl for example usage)
 * v0.5 - Made access and security keys optional, replaced haproxy restart to reload, added path to the service command
-* v0.6 - Adding --safe-mode: exit on aws exception, and no reload when security group is empty.
+(Above are for version 0.4.1 and before)
+* v0.5.0 - Add --safe-mode: exit on aws exception, and no reload when security group is empty
+           Redirect log to stdout so you can pipe it to other programs;
+           Add timestamp for logging.
