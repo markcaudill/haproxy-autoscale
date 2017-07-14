@@ -117,8 +117,11 @@ Example:
 * v0.4 - Added accessor class for autobackend generation (see tests/data/autobackends_example.tpl for example usage)
 * v0.5 - Made access and security keys optional, replaced haproxy restart to reload, added path to the service command
 
-(Above are for version 0.4.1 and before)
+(Above change logs are for version 0.4.1 and before.)
 
 * version 0.5.0 - Add --safe-mode: exit on aws exception, and no reload when security group is empty
                   Redirect log to stdout so you can pipe it to other programs;
                   Add timestamp for logging.
+* version 0.5.1 - Add --delay option.
+                  If specified, instances that were just created within DELAY seconds are not added into haproxy conf.
+                  Use when you want to give it some time to make sure the service on the instance is up and running before adding it into haproxy.

@@ -33,6 +33,10 @@ def parse_args():
     parser.add_argument('--safe-mode', action='store_true', default=False,
                         help='If specified, the script exits if there is any AWS exception. E.g., wrong key/secret.'
                              'Also no reload haproxy conf, if there is no instance in any of the security groups')
+    parser.add_argument('--delay', default=0, type=int,
+                        help='If specified, instances that were just created within DELAY seconds are not added into '
+                             'haproxy conf. Use when you want to give it some time to make sure the service on the '
+                             'instance is up and running before adding it into haproxy.')
 
     args = parser.parse_args()
 
@@ -56,7 +60,8 @@ def main(args):
                                                           secret_key=args.secret_key,
                                                           security_group=security_group,
                                                           region=args.region,
-                                                          safe_mode=args.safe_mode)
+                                                          safe_mode=args.safe_mode,
+                                                          delay=args.delay)
 
     # Generate the new config from the template.
     logging.info('Generating configuration for haproxy.')

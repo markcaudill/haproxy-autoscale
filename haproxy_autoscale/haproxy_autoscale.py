@@ -4,8 +4,9 @@ import logging
 import subprocess
 import urllib2
 from mako.template import Template
+from datetime import datetime
 
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 
 
 def get_self_instance_id():
@@ -29,7 +30,7 @@ def steal_elastic_ip(access_key=None, secret_key=None, ip=None):
     conn.associate_address(instance_id=instance_id, public_ip=ip)
 
 
-def get_running_instances(access_key=None, secret_key=None, security_group=None, region=None, safe_mode=False):
+def get_running_instances(access_key=None, secret_key=None, security_group=None, region=None, safe_mode=False, delay=0):
     '''
     Get all running instances. Only within a security group if specified.
     '''
@@ -49,10 +50,15 @@ def get_running_instances(access_key=None, secret_key=None, security_group=None,
                              region=region)
 
         running_instances = []
+        date_format = '%Y-%m-%dT%H:%M:%S.%fZ'
         try:
             for s in conn.get_all_security_groups():
                 if s.name == security_group:
-                    running_instances.extend([i for i in s.instances() if i.state == 'running'])
+                    running_instances.extend([
+                        i for i in s.instances()
+                        if i.state == 'running' and
+                           (datetime.utcnow() - datetime.strptime(i.launch_time, date_format)).seconds > delay
+                    ])
         except boto.exception.EC2ResponseError:
             logging.error('Region [' + region.name + '] inaccessible')
             if safe_mode:
