@@ -120,6 +120,6 @@ Example:
 (Above are for version 0.4.1 and before)
 
 * version 0.5.0
-- Add --safe-mode: exit on aws exception, and no reload when security group is empty
-- Redirect log to stdout so you can pipe it to other programs;
-- Add timestamp for logging.
+  - Add --safe-mode: exit on aws exception, and no reload when security group is empty
+  - Redirect log to stdout so you can pipe it to other programs;
+  - Add timestamp for logging.
