@@ -95,13 +95,13 @@ def main(args):
 
 if __name__ == '__main__':
     logging.getLogger()
-    format = '%(asctime)s - %(levelname)s - %(message)s'
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO, format=format)
+    log_format = '%(asctime)s - %(levelname)s - %(message)s'
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO, format=log_format)
 
     args = parse_args()
 
     if args.sleep:  # continous runs
-        logging.info("continous mode, sleeping %i seconds between runs\n" % args.sleep)
+        logging.info("continous mode, sleeping %i seconds between runs\n", args.sleep)
         while True:
             main(args)
             time.sleep(args.sleep)

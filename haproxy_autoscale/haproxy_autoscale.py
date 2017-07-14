@@ -127,7 +127,7 @@ def reload_haproxy(args):
     subprocess.call(command, shell=True)
 
 
-class Backends():
+class Backends(object):
     """
     this class is used for the tests functionality    
     """
