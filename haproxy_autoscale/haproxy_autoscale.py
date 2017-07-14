@@ -56,8 +56,8 @@ def get_running_instances(access_key=None, secret_key=None, security_group=None,
                 if s.name == security_group:
                     running_instances.extend([
                         i for i in s.instances()
-                        if i.state == 'running' and
-                           (datetime.utcnow() - datetime.strptime(i.launch_time, date_format)).seconds > delay
+                        if i.state == 'running' and (
+                            datetime.utcnow() - datetime.strptime(i.launch_time, date_format)).seconds > delay
                     ])
         except boto.exception.EC2ResponseError:
             logging.error('Region [' + region.name + '] inaccessible')
@@ -75,7 +75,7 @@ def get_running_instances(access_key=None, secret_key=None, security_group=None,
 def exists_empty_security_group(instances):
     for sg, instances in instances.iteritems():
         if not instances:
-            logging.error('There is no instance in security group {}'.format(sg))
+            logging.error('There is no instance in security group %s', sg)
             return True
     return False
 
@@ -116,23 +116,22 @@ def reload_haproxy(args):
 
     if args.haproxy:
         # Get PID if haproxy is already running.
-        logging.debug('Fetching PID from %s.' % args.pid)
+        logging.debug('Fetching PID from %s.', args.pid)
         pid = file_contents(filename=args.pid)
         command = '''%s -p %s -f %s -sf %s''' % (args.haproxy, args.pid, args.output, pid or '')
 
     else:
         command = "/sbin/service %s reload" % args.servicename
 
-    logging.debug('Executing: %s' % command)
+    logging.debug('Executing: %s', command)
     subprocess.call(command, shell=True)
 
 
-"""
-this class is used for the tests functionality
-"""
-
-
 class Backends():
+    """
+    this class is used for the tests functionality    
+    """
+
     # instances without these tags will be excluded from backends
     required_keys = ['AppName',
                      'AppPort']
@@ -177,7 +176,7 @@ class Backends():
         for instance in self.all_instances:
             instance.missing_tags = []
             for key in self.required_keys:
-                if instance.tags.has_key(key) is False:
+                if key not in instance.tags:
                     instance.missing_tags.append(key)
             if len(instance.missing_tags) is 0:
                 self.included_instances.append(instance)

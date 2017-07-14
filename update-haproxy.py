@@ -55,7 +55,7 @@ def main(args):
     # Fetch a list of all the instances in these security groups.
     instances = {}
     for security_group in args.security_group:
-        logging.info('Getting instances for %s.' % security_group)
+        logging.info('Getting instances for %s.', security_group)
         instances[security_group] = get_running_instances(access_key=args.access_key,
                                                           secret_key=args.secret_key,
                                                           security_group=security_group,
