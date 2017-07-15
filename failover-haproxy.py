@@ -20,13 +20,13 @@ def main():
         if args.health_check_url and args.eip:
             logging.info('Performing health check.')
             try:
-                logging.info('Checking %s' % args.health_check_url)
+                logging.info('Checking %s', args.health_check_url)
                 response = urllib2.urlopen(args.health_check_url)
-                logging.info('Response: %s' % response.read())
+                logging.info('Response: %s', response.read())
 
             except:
                 # Assign the EIP to self.
-                logging.warn('Health check failed. Assigning %s to self.' % args.eip)
+                logging.warn('Health check failed. Assigning %s to self.', args.eip)
                 steal_elastic_ip(access_key=args.access_key,
                                  secret_key=args.secret_key,
                                  ip=args.eip )

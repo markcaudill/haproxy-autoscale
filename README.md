@@ -78,6 +78,7 @@ job. Ideally it would be run every minute.
                       --secret-key SECRET_KEY [--output OUTPUT]
                       [--template TEMPLATE] [--haproxy HAPROXY] [--pid PID]
                       [--eip EIP] [--health-check-url HEALTH_CHECK_URL]
+                      [--safe-mode]
 
     Update haproxy to use all instances running in a security group.
 
@@ -97,10 +98,16 @@ job. Ideally it would be run every minute.
       --health-check-url HEALTH_CHECK_URL
                             The URL to check. Assigns EIP to self if health check
                             fails.
+      --safe-mode           If enabled, the script exits if there is any AWS exception.
+                            E.g., wrong key/secret.'
+                            Also if there is no instance in any of the security groups, haproxy conf
+                            will be generated but NOT reloaded.
 
 Example:
 
     /usr/bin/python update-haproxy.py --access-key='SOMETHING' --secret-key='SoMeThInGeLsE' --security-group='webheads' 'tomcat-servers'
+
+    /usr/bin/python update-haproxy.py --access-key='SOMETHING' --secret-key='SoMeThInGeLsE' --security-group='webheads' 'tomcat-servers' --safe-mode
 
 ## Changelog ##
 * v0.1 - Initial release.
@@ -109,3 +116,12 @@ Example:
 * v0.3 - Added support for all regions.
 * v0.4 - Added accessor class for autobackend generation (see tests/data/autobackends_example.tpl for example usage)
 * v0.5 - Made access and security keys optional, replaced haproxy restart to reload, added path to the service command
+
+(Above change logs are for version 0.4.1 and before.)
+
+* version 0.5.0 - Add --safe-mode: exit on aws exception, and no reload when security group is empty
+                  Redirect log to stdout so you can pipe it to other programs;
+                  Add timestamp for logging.
+* version 0.5.1 - Add --delay option.
+                  If specified, instances that were just created within DELAY seconds are not added into haproxy conf.
+                  Use when you want to give it some time to make sure the service on the instance is up and running before adding it into haproxy.
